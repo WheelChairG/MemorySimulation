@@ -1,0 +1,26 @@
+# generated files
+*.o
+*.a
+*.so
+*.exe
+*.out
+*.d
+
+# build directory
+build/
+
+# log
+*.log
+
+# temp files
+*.tmp
+*.swp
+*.bak
+*~
+
+# system files
+.DS_Store
+Thumbs.db
+
+# VSCode setting files
+.vscode/
