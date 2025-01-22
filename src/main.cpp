@@ -2,9 +2,16 @@
 #include <vector>
 #include <systemc.h>
 #include "memory.hpp"
+#include "rahmensprogramm.h"
 
 
-int sc_main(int argc, char** argv){
+int sc_main(int argc, char *argv[]){
+    CacheConfig cacheConfig;
+
+    if(parse_args(argc, argv, &cacheConfig) == -1){
+        return EXIT_FAILURE;
+    }
+
     std::cout<<"simulation starts"<<endl;
     sc_signal<bool> w_signal, r_signal, ready_signal;
     sc_signal<uint32_t> wdata;
