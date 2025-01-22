@@ -10,6 +10,7 @@ int sc_main(int argc, char** argv){
     sc_signal<uint32_t> wdata;
     sc_signal<uint32_t> addr;
     sc_signal<uint32_t> rdata;
+    sc_signal<uint32_t> mLatency;
     sc_clock clk_signal("clk_signal", 10, SC_NS);
     
     Memory memory("Memory");
@@ -21,11 +22,13 @@ int sc_main(int argc, char** argv){
     memory.r_data(rdata);
     memory.address(addr);
     memory.ready(ready_signal);
+    memory.m_latency(mLatency);
 
     //0001 0010 0100 1000 0001 0010 0100 1000
     //0x12481248
     //4096 512 64 8
     uint32_t x = 0x12481248;
+    mLatency.write(10);
     wdata.write(x);
     addr.write(0);
     

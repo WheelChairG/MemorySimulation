@@ -11,6 +11,7 @@ public:
     sc_in<bool> write;
     sc_in<uint32_t> address;
     sc_in<uint32_t> w_data;
+    sc_in<uint32_t> m_latency;
     sc_out<uint32_t> r_data;
     sc_out<bool> ready;
 

@@ -24,7 +24,7 @@ void Memory::process_memory(){
             int page = addr / page_num;
             int position = addr % page_size;
             uint32_t data = 0;
-            for(int i = 3; i >= 0; i--){
+            for(int i = 3; i >= 0; i--){ //Read data from the most significant Byte
                 std::cout<<"page: "<<page<<" position: "<<position<<endl;
                 data <<= 8;
                 data += memory[page][position + i];
@@ -34,10 +34,11 @@ void Memory::process_memory(){
             r_data.write(data);
             data = w_data.read();
             uint32_t byte = 255;
-            for(int i = 0; i < 4; i++){
+            for(int i = 0; i < 4; i++){ //Write data from the least significant Byte
                 memory[page][position + i] = data & byte;
                 data >>= 8;
             }
+            wait(m_latency, SC_NS);//Memory latency simulation
             ready.write(1);
         } else {
             if(read.read() == true && write.read() == false){
@@ -53,6 +54,7 @@ void Memory::process_memory(){
                     std::cout<<"data: "<<data<<endl;
                 }
                 r_data.write(data);
+                wait(m_latency, SC_NS);//Memory latency simulation
                 ready.write(1);
             } else if(write.read() == true && read.read() == false){
                 std::cout<<"writing..."<<endl;
@@ -65,6 +67,7 @@ void Memory::process_memory(){
                     memory[page][position + i] = data & byte;
                     data >>= 8;
                 }
+                wait(m_latency, SC_NS);//Memory latency simulation
                 ready.write(1);
             }
         }
