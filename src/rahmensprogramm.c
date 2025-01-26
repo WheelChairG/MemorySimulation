@@ -8,7 +8,7 @@ void print_usage(const char *prog_name){
     fprintf(stderr, "Usage: %s [options] <inputfiles> \n", prog_name);
     fprintf(stderr, "-c --cycles <num>        number of cycles, default 1000\n");
     fprintf(stderr, "-t --tf <filename>       path of trace file\n");
-    fprintf(stderr, "-h --help                help messages\ns");
+    fprintf(stderr, "-h --help                help messages\n");
     fprintf(stderr, "--num-cache-levels       number of cache levels(min. 1, max. 3)\n");
     fprintf(stderr, "--cacheline-size         size of cachelines in Bytes\n");
     fprintf(stderr, "--num-lines-l1           number of cache lines in L1-Cache\n");

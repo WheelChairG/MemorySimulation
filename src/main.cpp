@@ -6,6 +6,7 @@
 
 
 int sc_main(int argc, char *argv[]){
+    print_usage(argv[0]);
     CacheConfig cacheConfig;
 
     if(parse_args(argc, argv, &cacheConfig) == -1){
