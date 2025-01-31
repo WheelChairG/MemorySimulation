@@ -6,19 +6,6 @@
 #include "cache.hpp"
 #include "cacheline.hpp"
 
-void parse_config(CacheConfig &cache_config){
-
-}
-
-MappingStrategy intToMappingStrategy(uint8_t value){
-    switch(value){
-        case 0: return DIRECT_MAPPING;
-        case 1: return SET_ASSOCIATIVE;
-        case 2: return FULLY_ASSOCIATIVE;
-        default: throw std::invalid_argument("invalid mapping strategy.");
-    }
-}
-
 
 int sc_main(int argc, char *argv[]){
     print_usage(argv[0]);
