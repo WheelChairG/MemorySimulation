@@ -128,5 +128,32 @@ class CacheConfig{
 
         return true;
     }
+
+    void setDefault(){
+        numCacheLevels = 1;
+        cachelineSize = 16;
+        numLinesL1 = 16;
+        numLinesL2 = 256;
+        numLinesL3 = 1024;
+        latencyCacheL1 = 1;
+        latencyCacheL2 = 5;
+        latencyCacheL3 = 15;
+        mappingStrategy = DIRECT_MAPPING;
+        tracefile = "tracefile";//unfinished!!!
+        input_file = "input.csv";
+    }
+
+    // uint32_t cycles;
+    //     uint8_t numCacheLevels;//1-3
+    //     uint32_t cachelineSize;//32 64 128 Bytes min 16
+    //     uint32_t numLinesL1;//512 - 64K min 16
+    //     uint32_t numLinesL2;//2K - 512K min 256
+    //     uint32_t numLinesL3;//8K - 4M min 1K
+    //     uint32_t latencyCacheL1;//2 - 4Takt min 1Takt
+    //     uint32_t latencyCacheL2;//10 - 20Takt min 5Takt
+    //     uint32_t latencyCacheL3;//30 - 100Takt min 15Takt
+    //     uint8_t mappingStrategy;
+    //     std::string tracefile;
+    //     std::string input_file;
 };
 #endif
