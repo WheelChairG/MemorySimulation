@@ -3,42 +3,49 @@
 #include <systemc.h>
 
 class CacheLine : sc_module{
-    public:
+public:
+    sc_in<bool> clk;
+    sc_in<uint32_t> line_size;
+    sc_in<uint32_t> tag;
+    sc_in<uint32_t> offset;
+    sc_in<uint32_t> w_data;
+    sc_out<uint32_t> r_data;
+    sc_out<bool> ready;
+
     bool valid;
-    uint32_t tag;
-    std::vector<uint8_t> data;
+    std::vector<uint8_t> line;
 
-    CacheLine(uint32_t line_size){
-        valid = false;
-        tag = 0;
-        data.resize(line_size);
-    };
+    SC_CTOR(CacheLine){
+        line.resize(line_size, 0);
+    }
 
-    uint32_t read(uint32_t tag){
-        if(tag % 4 == 0){
+    void read(){
+        uint32_t pos = offset.read();
+        if(pos % 4 == 0){
             uint32_t res = 0;
             for(int i = 3; i > 0; i++){
                 res <<= 8;
-                res += data[tag + 3];
+                res += line[pos + i];
             }
-            return res;
+            r_data.write(res);
+            ready.write(true);
         }
         std::cerr<<"Error: tag must be divisable by 4."<<std::endl;
-        return 0;
     }
 
-    bool write(uint32_t tag, uint32_t w_data){
-        if(tag % 4 == 0){
+    void write(){
+        uint32_t pos = offset.read();
+        if(pos % 4 == 0){
             uint32_t temp;
             uint32_t byte = 255;
+            uint32_t to_write = w_data.read();
             for(int i = 0; i < 4; i++){
-                temp = w_data & byte;
-                data[tag + i] = temp;
-                w_data >>= 8;
+                temp = to_write & byte;
+                line[pos + i] = temp;
+                to_write >>= 8;
             }
-            return true;
+            ready.write(true);
         }
         std::cerr<<"Error: tag must be divisable by 4."<<std::endl;
-        return false;
     };
 };
