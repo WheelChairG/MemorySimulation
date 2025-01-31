@@ -4,6 +4,7 @@
 #include <vector>
 #include <systemc.h>
 #include "cacheconfig.hpp"
+#include "cacheline.hpp"
 #include <stdint.h>
 #include "memory.hpp"
 
@@ -22,11 +23,7 @@ class Cache : sc_module {
     SC_CTOR(Cache);
 
     private:
-    typedef struct{
-        bool valid;
-        uint32_t tag;
-        std::vector<uint8_t> data;
-    }CacheLine;
+    CacheLine line;
 
     CacheConfig cache_config;
 

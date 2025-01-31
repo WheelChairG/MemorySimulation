@@ -2,6 +2,7 @@
 #define CACHECONFIG_HPP
 
 #include <stdint.h>
+#include <string>
 
 typedef enum{
     DIRECT_MAPPING,
@@ -20,8 +21,8 @@ typedef struct{
     uint32_t latencyCacheL2;
     uint32_t latencyCacheL3;
     uint8_t mappingStrategy;
-    const char *tracefile;
-    char *input_file;
+    std::string tracefile;
+    std::string input_file;
 }CacheConfig;
 
 #endif
