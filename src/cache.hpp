@@ -124,6 +124,7 @@ uint8_t Cache::getCacheLineContent(uint32_t level, uint32_t lineIndex, uint32_t 
     if(level < cache_levels.size() && lineIndex < cache_levels[level].size()){
         return cache_levels[level][lineIndex].line[index];
     }
+    return 0;
 }
 
 
