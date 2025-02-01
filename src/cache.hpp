@@ -7,6 +7,12 @@
 #include "cacheline.hpp"
 #include <stdint.h>
 #include "memory.hpp"
+//write through
+struct Request{
+    uint32_t addr;
+    uint32_t w_data;
+    uint32_t wr;//0 = read 1 = write
+};
 
 class Cache : sc_module {
     public:

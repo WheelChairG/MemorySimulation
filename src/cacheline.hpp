@@ -2,21 +2,22 @@
 #include <vector>
 #include <systemc.h>
 
-class CacheLine : sc_module{
+SC_MODULE(CacheLine){
 public:
     sc_in<bool> clk;
     sc_in<uint32_t> line_size;
-    sc_in<uint32_t> tag;
-    sc_in<uint32_t> offset;
+    sc_in<uint32_t> tag;//which line
+    sc_in<uint32_t> offset;//where in line
     sc_in<uint32_t> w_data;
     sc_out<uint32_t> r_data;
     sc_out<bool> ready;
+    sc_in<uint8_t> latency;
 
     bool valid;
     std::vector<uint8_t> line;
 
-    SC_CTOR(CacheLine){
-        line.resize(line_size, 0);
+    CacheLine(uint32_t line_size, uint32_t tag, uint8_t latency){
+        
     }
 
     void read(){
@@ -48,4 +49,5 @@ public:
         }
         std::cerr<<"Error: tag must be divisable by 4."<<std::endl;
     };
+
 };
