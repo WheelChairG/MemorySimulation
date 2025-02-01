@@ -1,3 +1,6 @@
+#ifndef CACHELINE_HPP
+#define CACHELINE_HPP
+
 #include <stdint.h>
 #include <vector>
 #include <systemc.h>
@@ -5,19 +8,19 @@
 SC_MODULE(CacheLine){
 public:
     sc_in<bool> clk;
-    sc_in<uint32_t> line_size;
-    sc_in<uint32_t> tag;//which line
-    sc_in<uint32_t> offset;//where in line
-    sc_in<uint32_t> w_data;
-    sc_out<uint32_t> r_data;
-    sc_out<bool> ready;
-    sc_in<uint8_t> latency;
+    sc_signal<uint32_t> line_size;
+    sc_signal<uint32_t> tag;//which line
+    sc_signal<uint32_t> offset;//where in line
+    sc_signal<uint32_t> w_data;
+    sc_signal<uint32_t> r_data;
+    sc_signal<bool> ready;
 
     bool valid;
     std::vector<uint8_t> line;
 
-    CacheLine(uint32_t line_size, uint32_t tag, uint8_t latency){
-        
+    SC_CTOR(CacheLine){
+        valid = false;
+        line.resize(line_size, 0);
     }
 
     void read(){
@@ -30,8 +33,9 @@ public:
             }
             r_data.write(res);
             ready.write(true);
+        } else {
+            std::cerr<<"Error: tag must be divisable by 4."<<std::endl;
         }
-        std::cerr<<"Error: tag must be divisable by 4."<<std::endl;
     }
 
     void write(){
@@ -46,8 +50,11 @@ public:
                 to_write >>= 8;
             }
             ready.write(true);
+        } else {
+            std::cerr<<"Error: tag must be divisable by 4."<<std::endl;
         }
-        std::cerr<<"Error: tag must be divisable by 4."<<std::endl;
     };
 
 };
+
+#endif
