@@ -42,7 +42,7 @@ public:
 
 private:
     CacheConfig cache_config;
-    std::vector<std::vector<CacheLine*>> cache_levels;
+    std::vector<std::vector<CacheLine*>> cache_levels;//use Type CacheLine* instead of type CacheLine(no standard constructor for intialization in vector)
     std::vector<uint32_t> cache_sizes;
     std::vector<uint32_t> cache_lines;
     std::vector<uint32_t> latencies;
