@@ -75,7 +75,7 @@ std::vector<Request> read_input(const std::string& file_path){
 
 
 
-int main(int argc, char *argv[]){
+int sc_main(int argc, char *argv[]){
     // print_usage(argv[0]);
     // CacheConfig cacheConfig;
 
@@ -117,7 +117,5 @@ int main(int argc, char *argv[]){
     // r_signal.write(true);
     // sc_start(10, SC_NS);
     // std::cout<<"r_data: "<<rdata<<std::endl;
-
-
     return 0;
 }

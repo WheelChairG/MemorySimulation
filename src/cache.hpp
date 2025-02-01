@@ -42,7 +42,7 @@ public:
 
 private:
     CacheConfig cache_config;
-    std::vector<std::vector<CacheLine>> cache_levels;
+    std::vector<std::vector<CacheLine*>> cache_levels;
     std::vector<uint32_t> cache_sizes;
     std::vector<uint32_t> cache_lines;
     std::vector<uint32_t> latencies;
@@ -71,7 +71,7 @@ bool Cache::readCache(uint32_t addr, uint32_t &data){
     uint32_t offset = addr % cache_config.cachelineSize;
 
     for(int i = 0; i < num_cache_levels; i++){
-        CacheLine &line = cache_levels[i][index];
+        CacheLine &line = *cache_levels[i][index];
         if(line.valid && line.tag.read() == tag){
             line.offset.write(offset);
             line.read();
@@ -88,7 +88,7 @@ void Cache::writeCache(uint32_t addr, uint32_t data){
     uint32_t offset = addr % cache_config.cachelineSize;
 
     for(int i = 0; i < num_cache_levels; i++){
-        CacheLine &line = cache_levels[i][index];
+        CacheLine &line = *cache_levels[i][index];
         line.valid = true;
         line.tag.write(tag);
         line.offset.write(offset);
@@ -122,7 +122,7 @@ void Cache::process_cache(){
 
 uint8_t Cache::getCacheLineContent(uint32_t level, uint32_t lineIndex, uint32_t index){
     if(level < cache_levels.size() && lineIndex < cache_levels[level].size()){
-        return cache_levels[level][lineIndex].line[index];
+        return cache_levels[level][lineIndex]->line[index];
     }
     return 0;
 }
