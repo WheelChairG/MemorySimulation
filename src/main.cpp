@@ -18,6 +18,7 @@ std::vector<Request> read_input(const std::string& file_path){
     }
     std::cout<<"Input file loaded"<<std::endl;
 
+
     std::string type_str;
     std::string addr_str;
     std::string data_str;
@@ -74,20 +75,9 @@ std::vector<Request> read_input(const std::string& file_path){
     return requests;
 }
 
-Cache* build_cache(const std::string &config_file, Memory &memory){
-    const CacheConfig cache_config;
-    CacheConfig::loadFile(config_file);
-    Cache* cache = new Cache("Cache", cache_config, memory);
-    return cache;
-}
-
-
-
 int sc_main(int argc, char *argv[]){
     const std::string &config_file = "cacheconfig.txt";
     Memory memory("Memory");
-
-    Cache* cache = build_cache(config_file, memory);
 
 
     return 0;

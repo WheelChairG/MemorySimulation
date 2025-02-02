@@ -42,7 +42,7 @@ int parse_args(int argc, char *argv[], CacheConfig *cacheConfig) {
     while ((opt = getopt_long(argc, argv, "c:t:n:s:l:m:o:x:y:z:p:h", long_options, NULL)) != -1) {
         switch (opt) {
             case 'c': cacheConfig->cycles = atoi(optarg); break;
-            case 't': cacheConfig->tracefile = optarg; break;
+            case 't': cacheConfig->tracefile= optarg;
             case 'n': cacheConfig->numCacheLevels = atoi(optarg); break;
             case 's': cacheConfig->cachelineSize = atoi(optarg); break;
             case 'l': cacheConfig->numLinesL1 = atoi(optarg); break;
@@ -57,4 +57,61 @@ int parse_args(int argc, char *argv[], CacheConfig *cacheConfig) {
         }
     }
     return 0;
+}
+
+void validateCacheConfig(CacheConfig* config) {
+    if (config->numCacheLevels < 1 || config->numCacheLevels > 3) {
+        config->numCacheLevels = 2;
+    }
+    if (config->cachelineSize < 16 || config->cachelineSize > 256) {
+        config->cachelineSize = 32;
+    }
+
+    switch (config->numCacheLevels) {
+        case 1:
+            if (config->numLinesL1 < 16 || config->numLinesL1 > 64000) {
+                config->numLinesL1 = 16;
+            }
+            if (config->latencyCacheL1 < 1 || config->latencyCacheL1 > 4) {
+                config->latencyCacheL1 = 1;
+            }
+            break;
+        case 2:
+        case 3:
+            if (config->numLinesL1 < 16 || config->numLinesL1 > 64000) {
+                config->numLinesL1 = 16;
+            }
+            if (config->latencyCacheL1 < 1 || config->latencyCacheL1 > 4) {
+                config->latencyCacheL1 = 1;
+            }
+            if (config->numLinesL2 < 256 || config->numLinesL2 > 512000) {
+                config->numLinesL2 = 256;
+            }
+            if (config->latencyCacheL2 < 5 || config->latencyCacheL2 > 20) {
+                config->latencyCacheL2 = 5;
+            }
+            if (config->numCacheLevels == 3) {
+                if (config->numLinesL3 < 1000 || config->numLinesL3 > 4000000) {
+                    config->numLinesL3 = 1000;
+                }
+                if (config->latencyCacheL3 < 15 || config->latencyCacheL3 > 100) {
+                    config->latencyCacheL3 = 15;
+                }
+            }
+            break;
+    }
+}
+
+void setDefault(CacheConfig* config) {
+    config->numCacheLevels = 1;
+    config->cachelineSize = 16;
+    config->numLinesL1 = 16;
+    config->numLinesL2 = 256;
+    config->numLinesL3 = 1024;
+    config->latencyCacheL1 = 1;
+    config->latencyCacheL2 = 5;
+    config->latencyCacheL3 = 15;
+    config->mappingStrategy = DIRECT_MAPPING;
+    config->tracefile = NULL;
+    strcpy(config->inputfile, "input.csv");
 }
