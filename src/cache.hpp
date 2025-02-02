@@ -32,7 +32,7 @@ public:
     sc_out<bool> mem_w;
 
     SC_CTOR(Cache);
-    Cache(sc_module_name name, const CacheConfig& config);
+    Cache(sc_module_name name, const CacheConfig& config, Memory &memory);
 
     bool readCache(uint32_t addr, uint32_t &data);
     void writeCache(uint32_t addr, uint32_t data);
@@ -49,9 +49,14 @@ private:
     uint8_t num_cache_levels;
 
     int getCacheIndex(uint32_t addr, uint8_t level);
+    Memory &memory;
+
+    uint32_t latencyL1;
+    uint32_t latencyL2;
+    uint32_t latencyL3;
 };
 
-Cache::Cache(sc_module_name name, const CacheConfig& config) : sc_module(name), cache_config(config){
+Cache::Cache(sc_module_name name, const CacheConfig& config, Memory &memory) : sc_module(name), cache_config(config), memory(memory){
     SC_METHOD(process_cache);
     sensitive << clk.pos();
     num_cache_levels = config.numCacheLevels;
@@ -61,9 +66,16 @@ Cache::Cache(sc_module_name name, const CacheConfig& config) : sc_module(name), 
     cache_sizes.push_back(config.numLinesL2 * config.cachelineSize);
     cache_sizes.push_back(config.numLinesL3 * config.cachelineSize);
 
+    latencies.push_back(config.latencyCacheL1);
+    latencies.push_back(config.latencyCacheL2);
+    latencies.push_back(config.latencyCacheL3);
+
     cache_levels.resize(num_cache_levels);
     for(int i = 0; i < num_cache_levels; i++){
         cache_levels[i].resize(cache_sizes[i] / config.cachelineSize);
+        for(int j = 0; j < cache_levels[i].size(); j++){
+            cache_levels[i][j]->latency = latencies[i];
+        }
     }
 }
 
@@ -167,6 +179,20 @@ void Cache::writeCache(uint32_t addr, uint32_t data){
             line->write();
         }
     }
+
+    sc_signal<uint32_t> a;
+    sc_signal<uint32_t> d;
+    sc_signal<bool> r;
+    sc_signal<bool> w;
+    a.write(addr);
+    d.write(data);
+    r.write(false);
+    w.write(true);
+
+    memory.address(a);
+    memory.w_data(d);
+    memory.read(r);
+    memory.write(w);
 }
 
 void Cache::handleMiss(uint32_t addr){

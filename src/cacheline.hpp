@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <vector>
 #include <systemc.h>
+#include "cacheconfig.hpp"
 
 SC_MODULE(CacheLine){
 public:
@@ -14,6 +15,7 @@ public:
     sc_signal<uint32_t> w_data;
     sc_signal<uint32_t> r_data;
     sc_signal<bool> ready;
+    sc_signal<uint32_t> latency;
 
     bool valid;
     std::vector<uint8_t> line;
