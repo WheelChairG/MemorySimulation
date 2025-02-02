@@ -1,11 +1,11 @@
 SC_PATH = $(SYSTEMC_HOME)
 SRC_DIR = src
+INCLUDE_DIR = include
 BUILD_DIR = build
 OBJ_DIR = $(BUILD_DIR)/obj
 
-TARGET = $(BUILD_DIR)/cache
 CXX = g++
-CXXFLAGS = -std=c++11 -DSC_DISABLE_API_VERSION_CHECK -I$(SC_PATH)/include
+CXXFLAGS = -std=c++11 -DSC_DISABLE_API_VERSION_CHECK -I$(SC_PATH)/include -I$(INCLUDE_DIR)
 LDFLAGS = -L$(SC_PATH)/lib -lsystemc -lm
 
 CPP_FILES = $(wildcard $(SRC_DIR)/*.cpp)

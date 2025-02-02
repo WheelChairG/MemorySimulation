@@ -3,11 +3,11 @@
 #include <vector>
 #include <sstream>
 #include <systemc.h>
-#include "memory.hpp"
-#include "rahmensprogramm.h"
-#include "cache.hpp"
-#include "cacheline.hpp"
-#include "cacheconfig.hpp"
+#include "../include/memory.hpp"
+#include "../include/rahmensprogramm.h"
+#include "../include/cache.hpp"
+#include "../include/cacheline.hpp"
+#include "../include/cacheconfig.hpp"
 
 //convert csv file in to requests
 std::vector<Request> read_input(const std::string& file_path){
@@ -84,6 +84,16 @@ const char* mstos(MappingStrategy ms){
     }
 }
 
+void write_requests_to_csv(const std::string& filename, std::vector<Request> requests, size_t num_requests) {
+    std::ofstream outfile(filename);
+    for (size_t i = 0; i < num_requests; ++i) {
+        outfile << (requests[i].wr ? "W," : "R,")
+                << requests[i].addr << ","
+                << requests[i].w_data << std::endl;
+    }
+    outfile.close();
+}
+
 struct Result{
     uint32_t cycles;
     uint32_t misses;
@@ -156,9 +166,6 @@ int sc_main(int argc, char *argv[]){
     Cache cache("Cache", cache_config, memory);
     Result result = run_simulation(cache_config.cycles, requests, cache_config, cache);
 
-    std::cout << "Cycles: " << result.cycles << std::endl;
-    std::cout << "Misses: " << result.misses << std::endl;
-    std::cout << "Hits: " << result.hits << std::endl;
-    std::cout << "Primitive Gate Count: " << result.primitiveGateCount << std::endl;
+    write_requests_to_csv(argv[1], requests, requests.size());
     return 0;
 }
