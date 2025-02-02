@@ -20,18 +20,29 @@ In diesem Projekt wurde ein Cache-Modul implementiert, das in verschiedenen Konf
   - Hauptspeicherzugriffe: ca. 100–200 Zyklen  
 
 ### Replacement-Strategien
-- **Direct Mapped:**  
-  Jeder Block wird in genau einer Cachezeile abgelegt. Vorteile sind die einfache Implementierung und schnelle Berechnung des Indexes. Der Nachteil ist die hohe Wahrscheinlichkeit von Konflikten, wenn mehrere Blöcke auf dieselbe Zeile abgebildet werden.  
-- **Fully Associative:**  
-  Jede Adresse kann auf jede Cache-Zeile abgebildet werden. Konflikte werden minimiert, jedoch mit höherer Komplexität, da alle Zeilen durchsucht werden müssen.  
-- **Set Associative:**  
-  Jede Adresse kann auf einen Teil der Cache-Zeilen abgebildet werden. Diese Methode bietet einen Kompromiss zwischen Hardware-Komplexität und Miss-Rate.  
-
+- **Random:**  
+  Beim Random Replacement wird ein zufällig ausgewählter Eintrag aus dem Cache entfernt. Vorteil: sehr einfache und schnelle Implementierung. Nachteil: wichtige Daten können unwissentlich gelöscht werden, was zu suboptimaler Cache-Leistung führt. 
+- **FIFO (First in, first out):**  
+  FIFO löscht stets den ältesten Eintrag, unabhängig von dessen Nutzung. Vorteil: die Methode ist unkompliziert und ressourcenschonend. Nachteil: häufig benötigte Daten können vorzeitig verschwinden, da das Alter anstelle der Relevanz zählt.  
+- **LRU (Least Recently Used):**  
+  LRU ersetzt den Eintrag, der am längsten nicht genutzt wurde. Vorteil: nutzt die temporale Lokalität optimal aus und erzielt in vielen Szenarien hohe Trefferquoten. Nachteil: bei großen Caches kann die Verwaltung komplex und ressourcenintensiv werden.
+- **LFU (Least Frequently Used):**
+  LFU entfernt den Eintrag mit der geringsten Nutzungshäufigkeit. Vorteil: bewahrt häufig benötigte Daten länger. Nachteil: erfordert aufwändige Zähler, und veraltete Nutzungsdaten können zu unflexiblen Entscheidungen führen.
+    
 ### Speicherintensiver Algorithmus
 Ein speicherintensiver Algorithmus benötigt große Datenmengen und führt viele Lese- und Schreiboperationen durch. Seine Effizienz wird durch die langsamen Hauptspeicherzugriffe beeinträchtigt, da der Prozessor oft auf Daten warten muss. Cache-Speicher hilft, indem er häufig verwendete Daten (zeitlich oder räumlich) zwischenspeichert, wodurch Zugriffszeiten reduziert und die Leistung verbessert werden.  
 Um dieses Verhalten zu untersuchen, verwenden wir die Matrixmultiplikation, da sie viele Speicherzugriffe erfordert und sich gut in einer CSV-Datei dokumentieren lässt – jeder Zugriff auf eine Matrixzelle kann genau protokolliert werden.
 
 ## 3. Lösungsansatz
+
+### Rahmenprogramm
+Das Rahmenprogramm übernimmt folgende Aufgaben:
+- **Einlesen der CLI-Optionen:**  
+  Mithilfe von `getopt_long` werden Optionen eingelesen. Werden keine Werte angegeben, kommen sinnvolle Standardwerte zum Einsatz. Zudem werden die Eingabewerte geprüft, ob sie für die Simulation gültig sind.  
+- **Eingabedatei verarbeiten:**  
+  Das Rahmenprogramm liest die angegebene CSV-Datei ein. Jede Zeile (ohne Header) wird in einen Request übersetzt. Ein Lesezugriff wird als `R,<Address>,` und ein Schreibzugriff als `W,<Address>,<Data>` erwartet. Die extrahierten Requests werden an das Cache-Modul übergeben.
+- **Simulation starten:**  
+  Nachdem alle Konfigurationsparameter und Requests eingelesen wurden, wird das Cache-Modul (in Verbindung mit dem Hauptspeicher) simuliert. Die erfassten Kennzahlen (Cycles, Hit-/Miss-Raten, Primitive Gate Count) werden anschließend ausgegeben.
 
 ### Simulation des Caches
 - **Cache-Zugriffe** über CPU-Signale (Lese- und Schreibzugriffe) verarbeitet.  
@@ -50,18 +61,9 @@ Für jeden Zugriff werden die folgenden Kennzahlen ermittelt:
 - **Primitive Gate Count:**  
   Eine grobe Schätzung der benötigten Hardware wird anhand der Anzahl der Cachezeilen und -level berechnet.  
 
-### Rahmenprogramm
-Das Rahmenprogramm übernimmt folgende Aufgaben:
-- **Einlesen der CLI-Optionen:**  
-  Mithilfe von `getopt_long` werden Optionen eingelesen. Werden keine Werte angegeben, kommen sinnvolle Standardwerte zum Einsatz. Zudem werden die Eingabewerte geprüft, ob sie für die Simulation gültig sind.  
-- **Eingabedatei verarbeiten:**  
-  Das Rahmenprogramm liest die angegebene CSV-Datei ein. Jede Zeile (ohne Header) wird in einen Request übersetzt. Ein Lesezugriff wird als `R,<Address>,` und ein Schreibzugriff als `W,<Address>,<Data>` erwartet. Die extrahierten Requests werden an das Cache-Modul übergeben.
-- **Simulation starten:**  
-  Nachdem alle Konfigurationsparameter und Requests eingelesen wurden, wird das Cache-Modul (in Verbindung mit dem Hauptspeicher) simuliert. Die erfassten Kennzahlen (Cycles, Hit-/Miss-Raten, Primitive Gate Count) werden anschließend ausgegeben.
-
 ## 4. Bewertung und Fazit
 
-Die Simulation ermöglicht es, über die Konfiguration der Mapping-Strategie** mithilfe von benötigten Zyklen, resultierenden Miss- und Hit-Raten zu vergleichen. Anhand dieser Kennzahlen kann z. B. ermittelt werden, welche Mapping-Strategie in Bezug auf Effizienz überlegen ist.  
+Die Simulation ermöglicht es, über die Konfiguration der Mapping-Strategie mithilfe von benötigten Zyklen, resultierenden Miss- und Hit-Raten zu vergleichen. Anhand dieser Kennzahlen kann z. B. ermittelt werden, welche Mapping-Strategie in Bezug auf Effizienz überlegen ist.  
 Gleichzeitig ermöglicht die Variation der Cache-Level und -Größen eine intuitive Simulation des Einflusses von Lese- und Schreibzugriffen auf den Gesamtsystemdurchsatz.  
 Diese Erkenntnisse liefern wichtige Hinweise für das Design moderner Cache-Systeme, insbesondere im Kontext speicherintensiver Algorithmen, bei denen ein optimales Cache-Design zu einer erheblichen Leistungssteigerung führen kann.
 

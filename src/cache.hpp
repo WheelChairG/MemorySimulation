@@ -43,6 +43,8 @@ public:
     void handleMiss(uint32_t addr);
     void process_cache();
     uint8_t getCacheLineContent(uint32_t level, uint32_t lineIndex, uint32_t index);
+    uint32_t estimateGateCount(CacheConfig& config);
+    bool isHit(uint32_t addr);
 
 private:
     CacheConfig cache_config;
@@ -206,5 +208,19 @@ uint8_t Cache::getCacheLineContent(uint32_t level, uint32_t lineIndex, uint32_t 
     }
     return 0;
 }
+
+uint32_t Cache::estimateGateCount(CacheConfig& config){
+    uint32_t totalGates = 0;
+
+    for (size_t level = 0; level < config.numCacheLevels; level++) {
+        uint32_t cacheLines = (level == 0) ? config.numLinesL1 :
+                              (level == 1) ? config.numLinesL2 :
+                              config.numLinesL3;
+
+        totalGates += cacheLines * 100;
+    }
+
+    return totalGates;
+};
 
 #endif

@@ -84,6 +84,56 @@ const char* mstos(MappingStrategy ms){
     }
 }
 
+struct Result{
+    uint32_t cycles;
+    uint32_t misses;
+    uint32_t hits;
+    uint32_t primitiveGateCount;
+};
+
+Result run_simulation(
+    uint32_t cycles,
+    const std::vector<Request>& requests,
+    CacheConfig& cache_config,
+    Cache cache
+) {
+    // Initialisiere Cache und Speicher
+
+    uint32_t misses = 0;
+    uint32_t hits = 0;
+
+    // Starte Simulation für gegebene Anzahl an Zyklen oder bis Requests abgearbeitet sind
+    for (uint32_t i = 0; i < cycles && i < requests.size(); i++) {
+        const Request& req = requests[i];
+
+        bool hit;
+        uint32_t result;
+
+        if (req.wr == 1) {
+            // Schreibzugriff
+            cache.writeCache(req.addr, req.w_data);
+            hit = cache.isHit(req.addr);
+        } else {
+            // Lesezugriff
+            // result = cache.readCache(req.addr, req.w_data);
+            hit = cache.isHit(req.addr);
+        }
+
+        if (hit) {
+            hits++;
+        } else {
+            misses++;
+        }
+    }
+
+    // Geschätzte Anzahl an primitiven Gattern (kann angepasst werden)
+    uint32_t primitiveGateCount = cache.estimateGateCount(cache_config);
+
+    // Ergebnisse zurückgeben
+    Result sim_result = {cycles, misses, hits, primitiveGateCount};
+    return sim_result;
+}
+
 int sc_main(int argc, char *argv[]){
     Memory memory("Memory");
     CacheConfig cache_config;
@@ -103,7 +153,12 @@ int sc_main(int argc, char *argv[]){
     std::cout<<"L3 cache latency: "<<cache_config.latencyCacheL3<<std::endl;
     std::cout<<"Mapping Strategy: "<<mstos(cache_config.mappingStrategy)<<std::endl;
 
+    std::vector<Request> requests = read_input(argv[1]);
     
-    
+    for(int i = 0; i < requests.size(); i++){
+        const Request& req = requests[i];
+        
+    }
+
     return 0;
 }
