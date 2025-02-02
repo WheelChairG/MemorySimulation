@@ -95,7 +95,7 @@ Result run_simulation(
     uint32_t cycles,
     const std::vector<Request>& requests,
     CacheConfig& cache_config,
-    Cache cache
+    Cache& cache
 ) {
     // Initialisiere Cache und Speicher
 
@@ -107,16 +107,14 @@ Result run_simulation(
         const Request& req = requests[i];
 
         bool hit;
-        uint32_t result;
+        uint32_t result = 0; // Initialize result
 
         if (req.wr == 1) {
             // Schreibzugriff
             cache.writeCache(req.addr, req.w_data);
-            hit = cache.isHit(req.addr);
         } else {
             // Lesezugriff
-            // result = cache.readCache(req.addr, req.w_data);
-            hit = cache.isHit(req.addr);
+            hit = cache.readCache(req.addr, result);
         }
 
         if (hit) {
@@ -155,10 +153,12 @@ int sc_main(int argc, char *argv[]){
 
     std::vector<Request> requests = read_input(argv[1]);
     
-    for(int i = 0; i < requests.size(); i++){
-        const Request& req = requests[i];
-        
-    }
+    Cache cache("Cache", cache_config, memory);
+    Result result = run_simulation(cache_config.cycles, requests, cache_config, cache);
 
+    std::cout << "Cycles: " << result.cycles << std::endl;
+    std::cout << "Misses: " << result.misses << std::endl;
+    std::cout << "Hits: " << result.hits << std::endl;
+    std::cout << "Primitive Gate Count: " << result.primitiveGateCount << std::endl;
     return 0;
 }

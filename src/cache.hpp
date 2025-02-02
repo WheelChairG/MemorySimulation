@@ -44,8 +44,7 @@ public:
     void process_cache();
     uint8_t getCacheLineContent(uint32_t level, uint32_t lineIndex, uint32_t index);
     uint32_t estimateGateCount(CacheConfig& config);
-    bool isHit(uint32_t addr);
-
+    
 private:
     CacheConfig cache_config;
     std::vector<std::vector<CacheLine*> > cache_levels;//use Type CacheLine* instead of type CacheLine(no standard constructor for intialization in vector)
@@ -221,6 +220,6 @@ uint32_t Cache::estimateGateCount(CacheConfig& config){
     }
 
     return totalGates;
-};
+}
 
 #endif
