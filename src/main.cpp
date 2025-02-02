@@ -75,10 +75,32 @@ std::vector<Request> read_input(const std::string& file_path){
     return requests;
 }
 
+const char* mstos(MappingStrategy ms){
+    switch(ms){
+        case DIRECT_MAPPING: return "DIRECT_MAPPING";
+        case SET_ASSOCIATIVE: return "SET_ASSOCIATIVE";
+        case FULLY_ASSOCIATIVE: return "FULLY_ASSOCIATIVE";
+        default: return "UNKNOWN";
+    }
+}
+
 int sc_main(int argc, char *argv[]){
-    const std::string &config_file = "cacheconfig.txt";
     Memory memory("Memory");
+    CacheConfig cache_config;
 
+    parse_args(argc, argv, &cache_config);
+    validateCacheConfig(&cache_config);
 
+    std::cout<<"cycles: "<<cache_config.cycles<<std::endl;
+    std::cout<<"cache levels: "<<cache_config.numCacheLevels<<std::endl;
+    std::cout<<"cache line size: "<<cache_config.cachelineSize<<std::endl;
+    std::cout<<"L1 cache lines: "<<cache_config.numLinesL1<<std::endl;
+    std::cout<<"L2 cache lines: "<<cache_config.numLinesL2<<std::endl;
+    std::cout<<"L3 cache lines: "<<cache_config.numLinesL3<<std::endl;
+    std::cout<<"L1 cache latency: "<<cache_config.latencyCacheL1<<std::endl;
+    std::cout<<"L2 cache latency: "<<cache_config.latencyCacheL2<<std::endl;
+    std::cout<<"L3 cache latency: "<<cache_config.latencyCacheL3<<std::endl;
+    std::cout<<"Mapping Strategy: "<<mstos(cache_config.mappingStrategy)<<std::endl;
+    
     return 0;
 }

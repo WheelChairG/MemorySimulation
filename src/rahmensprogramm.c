@@ -21,6 +21,15 @@ void print_usage(const char *prog_name) {
     printf("  -h, --help                 Show this help message\n");
 }
 
+MappingStrategy intToMapping(int value){
+    switch(value){
+        case 0: return DIRECT_MAPPING;
+        case 1: return SET_ASSOCIATIVE;
+        case 2: return FULLY_ASSOCIATIVE;
+        default: return DIRECT_MAPPING;
+    }
+}
+
 int parse_args(int argc, char *argv[], CacheConfig *cacheConfig) {
     int opt;
     static struct option long_options[] = {
@@ -51,7 +60,7 @@ int parse_args(int argc, char *argv[], CacheConfig *cacheConfig) {
             case 'x': cacheConfig->latencyCacheL1 = atoi(optarg); break;
             case 'y': cacheConfig->latencyCacheL2 = atoi(optarg); break;
             case 'z': cacheConfig->latencyCacheL3 = atoi(optarg); break;
-            case 'p': cacheConfig->mappingStrategy = atoi(optarg); break;
+            case 'p': cacheConfig->mappingStrategy = intToMapping(atoi(optarg)); break;
             case 'h': print_usage(argv[0]); exit(EXIT_SUCCESS);
             default: print_usage(argv[0]); return -1;
         }

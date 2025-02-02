@@ -32,6 +32,9 @@ public:
     sc_out<bool> mem_r;
     sc_out<bool> mem_w;
 
+    sc_event l1_done, l2_done, l3_done;
+    
+
     SC_CTOR(Cache);
     Cache(sc_module_name name, const CacheConfig &config, Memory &memory);
 
