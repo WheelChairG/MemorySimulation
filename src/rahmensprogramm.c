@@ -1,74 +1,60 @@
-#include <stddef.h>
-#include <stdlib.h>
-#include <getopt.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <getopt.h>
 #include "rahmensprogramm.h"
 
-void print_usage(const char *prog_name){
-    fprintf(stderr, "Usage: %s [options] <inputfiles> \n", prog_name);
-    fprintf(stderr, "-c --cycles <num>        number of cycles, default 1000\n");
-    fprintf(stderr, "-t --tf <filename>       path of trace file\n");
-    fprintf(stderr, "-h --help                help messages\n");
-    fprintf(stderr, "--num-cache-levels       number of cache levels(min. 1, max. 3)\n");
-    fprintf(stderr, "--cacheline-size         size of cachelines in Bytes\n");
-    fprintf(stderr, "--num-lines-l1           number of cache lines in L1-Cache\n");
-    fprintf(stderr, "--num-lines-l2           number of cache lines in L2-Cache\n");
-    fprintf(stderr, "--num-lines-l3           number of cache lines in L3-Cache\n");
-    fprintf(stderr, "--latency-cache-l1       latency of L1-Caches in clockcycles\n");
-    fprintf(stderr, "--latency-cache-l2       latency of L2-Caches in clockcycles\n");
-    fprintf(stderr, "--latency-cache-l3       latency of L3-Caches in clockcycles\n");
-    fprintf(stderr, "--mapping-strategy       chose mapping strategy: 0 = direct-mapped, 1 = fully associative, 2 = set-associative\n");
+
+void print_usage(const char *prog_name) {
+    printf("Usage: %s [options]\n", prog_name);
+    printf("  -c, --cycles <num>          Number of cycles to simulate\n");
+    printf("  -t, --tf <file>            Path to trace file\n");
+    printf("  -n, --num-cache-levels <num> Number of cache levels (1-3)\n");
+    printf("  -s, --cacheline-size <num>  Cache line size in bytes\n");
+    printf("  -l, --num-lines-l1 <num>    Number of lines in L1 cache\n");
+    printf("  -m, --num-lines-l2 <num>    Number of lines in L2 cache\n");
+    printf("  -o, --num-lines-l3 <num>    Number of lines in L3 cache\n");
+    printf("  -x, --latency-cache-l1 <num> L1 cache latency\n");
+    printf("  -y, --latency-cache-l2 <num> L2 cache latency\n");
+    printf("  -z, --latency-cache-l3 <num> L3 cache latency\n");
+    printf("  -p, --mapping-strategy <num> Cache mapping strategy\n");
+    printf("  -h, --help                 Show this help message\n");
 }
 
-int parse_args(int argc, char *argv[], CacheConfig *cacheConfig){
-
-    if(cacheConfig == NULL){
-        cacheConfig -> cycles = 1000;
-        cacheConfig -> numCacheLevels = 3;
-        cacheConfig -> cachelineSize = 64;
-        cacheConfig -> numLinesL1 = 1024;
-        cacheConfig -> numLinesL2 = 2048;
-        cacheConfig -> numLinesL3 = 4096;
-        cacheConfig -> latencyCacheL1 = 5;
-        cacheConfig -> latencyCacheL2 = 10;
-        cacheConfig -> latencyCacheL3 = 20;
-        cacheConfig -> mappingStrategy = 0;
-    }
-
+int parse_args(int argc, char *argv[], CacheConfig *cacheConfig) {
+    int opt;
     static struct option long_options[] = {
         {"cycles", required_argument, 0, 'c'},
         {"tf", required_argument, 0, 't'},
+        {"num-cache-levels", required_argument, 0, 'n'},
+        {"cacheline-size", required_argument, 0, 's'},
+        {"num-lines-l1", required_argument, 0, 'l'},
+        {"num-lines-l2", required_argument, 0, 'm'},
+        {"num-lines-l3", required_argument, 0, 'o'},
+        {"latency-cache-l1", required_argument, 0, 'x'},
+        {"latency-cache-l2", required_argument, 0, 'y'},
+        {"latency-cache-l3", required_argument, 0, 'z'},
+        {"mapping-strategy", required_argument, 0, 'p'},
         {"help", no_argument, 0, 'h'},
-        {"num-cache-levels", required_argument, 0, 0},
-        {"cacheline-size", required_argument, 0, 0},
-        {"num-lines-l1", required_argument, 0, 0},
-        {"num-lines-l2", required_argument, 0, 0},
-        {"num-lines-l3", required_argument, 0, 0},
-        {"latency-cache-l1", required_argument, 0, 0},
-        {"latency-cache-l2", required_argument, 0, 0},
-        {"latency-cache-l3", required_argument, 0, 0},
-        {"mapping-strategie", required_argument, 0, 0},
         {0, 0, 0, 0}
     };
 
-    int opt;
-
-    while((opt = getopt_long(argc, argv, "c:t:h", long_options, NULL)) != -1){
-        switch(opt){
-            case 'c':
-            cacheConfig -> cycles = atoi(optarg);
-            break;
-            case 't':
-            cacheConfig -> tracefile = optarg;
-            break;
-            case 'h':
-            print_usage(argv[0]);
-            exit(EXIT_SUCCESS);
-            default:
-            print_usage(argv[0]);
-            return 1;
+    while ((opt = getopt_long(argc, argv, "c:t:n:s:l:m:o:x:y:z:p:h", long_options, NULL)) != -1) {
+        switch (opt) {
+            case 'c': cacheConfig->cycles = atoi(optarg); break;
+            case 't': cacheConfig->tracefile = optarg; break;
+            case 'n': cacheConfig->numCacheLevels = atoi(optarg); break;
+            case 's': cacheConfig->cachelineSize = atoi(optarg); break;
+            case 'l': cacheConfig->numLinesL1 = atoi(optarg); break;
+            case 'm': cacheConfig->numLinesL2 = atoi(optarg); break;
+            case 'o': cacheConfig->numLinesL3 = atoi(optarg); break;
+            case 'x': cacheConfig->latencyCacheL1 = atoi(optarg); break;
+            case 'y': cacheConfig->latencyCacheL2 = atoi(optarg); break;
+            case 'z': cacheConfig->latencyCacheL3 = atoi(optarg); break;
+            case 'p': cacheConfig->mappingStrategy = atoi(optarg); break;
+            case 'h': print_usage(argv[0]); exit(EXIT_SUCCESS);
+            default: print_usage(argv[0]); return -1;
         }
     }
-     
     return 0;
 }
