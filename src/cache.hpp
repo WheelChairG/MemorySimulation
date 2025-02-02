@@ -59,7 +59,6 @@ private:
     uint32_t latencyL2;
     uint32_t latencyL3;
 
-    // 在 Cache 内部使用 sc_signal
     sc_signal<uint32_t> cache_tag, cache_offset, cache_w_data, cache_r_data;
     sc_signal<bool> cache_ready;
 };
@@ -87,7 +86,6 @@ Cache::Cache(sc_module_name name, const CacheConfig& config, Memory &memory) : s
     }
 }
 
-// 获取缓存索引，Direct-Mapped 和 Set-Associative
 int Cache::getCacheIndex(uint32_t addr, uint8_t level) {
     MappingStrategy strategy = static_cast<MappingStrategy>(cache_config.mappingStrategy);
 
@@ -108,16 +106,6 @@ bool Cache::readCache(uint32_t addr, uint32_t &data) {
     uint32_t index = getCacheIndex(addr, 0);
     uint32_t offset = addr % cache_config.cachelineSize;
 
-    // for(int i = 0; i < num_cache_levels; i++){
-    //     CacheLine &line = *cache_levels[i][index];
-    //     if(line.valid && line.tag.read() == tag){
-    //         line.offset.write(offset);
-    //         line.read();
-    //         data = line.r_data.read();
-    //         return true;
-    //     }
-    // }
-    // return false;
     
     for (int i = 0; i < num_cache_levels; i++) {
         if (cache_config.mappingStrategy == FULLY_ASSOCIATIVE) {
@@ -145,14 +133,6 @@ void Cache::writeCache(uint32_t addr, uint32_t data) {
     uint32_t index = getCacheIndex(addr, 0);
     uint32_t offset = addr % cache_config.cachelineSize;
 
-   // for(int i = 0; i < num_cache_levels; i++){
-    //     CacheLine &line = *cache_levels[i][index];
-    //     line.valid = true;
-    //     line.tag.write(tag);
-    //     line.offset.write(offset);
-    //     line.w_data.write(data);
-    //     line.write();
-    // }
     for (int i = 0; i < num_cache_levels; i++) {
         if (cache_config.mappingStrategy == FULLY_ASSOCIATIVE) {
             for (size_t j = 0; j < cache_levels[i].size(); ++j) {
@@ -181,7 +161,7 @@ void Cache::writeCache(uint32_t addr, uint32_t data) {
         }
     }
 
-    // Write-Through: 直接写入 Memory
+    // Write-Through
     sc_signal<uint32_t> a;
     sc_signal<uint32_t> d;
     sc_signal<bool> r;
