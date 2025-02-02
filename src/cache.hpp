@@ -47,6 +47,8 @@ private:
     std::vector<uint32_t> cache_lines;
     std::vector<uint32_t> latencies;
     uint8_t num_cache_levels;
+
+    int getCacheIndex(uint32_t addr, uint8_t level);
 };
 
 Cache::Cache(sc_module_name name, const CacheConfig& config) : sc_module(name), cache_config(config){
@@ -65,35 +67,105 @@ Cache::Cache(sc_module_name name, const CacheConfig& config) : sc_module(name), 
     }
 }
 
+// 获取缓存索引，适用于 Direct-Mapped 和 Set-Associative
+int Cache::getCacheIndex(uint32_t addr, uint8_t level) {
+    uint32_t tag = addr / cache_sizes[level];
+    MappingStrategy strategy = static_cast<MappingStrategy>(cache_config.mappingStrategy);
+
+    switch (strategy) {
+        case DIRECT_MAPPING:
+            return (addr / cache_config.cachelineSize) % cache_levels[level].size();
+        case SET_ASSOCIATIVE:
+            return (addr / cache_config.cachelineSize) % (cache_levels[level].size() / 4); // 默认 4-way
+        case FULLY_ASSOCIATIVE:
+            return -1; // Fully Associative 需要遍历所有 CacheLine
+        default:
+            throw std::invalid_argument("Invalid mapping strategy.");
+    }
+}
+
+
 bool Cache::readCache(uint32_t addr, uint32_t &data){
     uint32_t tag = addr / cache_sizes[0];
-    uint32_t index = (addr / cache_sizes[0]) % cache_levels[0].size();
+    uint32_t index = getCacheIndex(addr, 0);
     uint32_t offset = addr % cache_config.cachelineSize;
 
-    for(int i = 0; i < num_cache_levels; i++){
-        CacheLine &line = *cache_levels[i][index];
-        if(line.valid && line.tag.read() == tag){
-            line.offset.write(offset);
-            line.read();
-            data = line.r_data.read();
-            return true;
+    // for(int i = 0; i < num_cache_levels; i++){
+    //     CacheLine &line = *cache_levels[i][index];
+    //     if(line.valid && line.tag.read() == tag){
+    //         line.offset.write(offset);
+    //         line.read();
+    //         data = line.r_data.read();
+    //         return true;
+    //     }
+    // }
+    // return false;
+    
+    for (int i = 0; i < num_cache_levels; i++) {
+        if (cache_config.mappingStrategy == FULLY_ASSOCIATIVE) {
+            // 遍历整个缓存
+            for (size_t j = 0; j < cache_levels[i].size(); ++j) {
+                CacheLine* &line = cache_levels[i][j];
+                if (line && line->valid && line->tag.read() == tag) {
+                    data = line->r_data.read();
+                    return true;
+                }
+            }
+        } else {
+            CacheLine *line = cache_levels[i][index];
+            if (line && line->valid && line->tag.read() == tag) {
+                line->offset.write(offset);
+                line->read();
+                data = line->r_data.read();
+                return true;
+            }
         }
     }
     return false;
 }
 
+
 void Cache::writeCache(uint32_t addr, uint32_t data){
     uint32_t tag = addr / cache_sizes[0];
-    uint32_t index = (addr / cache_sizes[0]) % cache_levels[0].size();
+    uint32_t index = getCacheIndex(addr, 0);
     uint32_t offset = addr % cache_config.cachelineSize;
 
-    for(int i = 0; i < num_cache_levels; i++){
-        CacheLine &line = *cache_levels[i][index];
-        line.valid = true;
-        line.tag.write(tag);
-        line.offset.write(offset);
-        line.w_data.write(data);
-        line.write();
+    // for(int i = 0; i < num_cache_levels; i++){
+    //     CacheLine &line = *cache_levels[i][index];
+    //     line.valid = true;
+    //     line.tag.write(tag);
+    //     line.offset.write(offset);
+    //     line.w_data.write(data);
+    //     line.write();
+    // }
+
+    for (int i = 0; i < num_cache_levels; i++) {
+        if (cache_config.mappingStrategy == FULLY_ASSOCIATIVE) {
+            // Fully Associative 需要找到空闲位置或替换
+            for (size_t j = 0; j < cache_levels[i].size(); ++j) {
+                CacheLine* &line = cache_levels[i][j];
+                if (!line || !line->valid) {
+                    line = new CacheLine("CacheLine");
+                    line->valid = true;
+                    line->tag.write(tag);
+                    line->offset.write(offset);
+                    line->w_data.write(data);
+                    line->write();
+                    return;
+                }
+            }
+        } else {
+            CacheLine *line = cache_levels[i][index];
+            if (!line) {
+                line = new CacheLine("CacheLine");
+                cache_levels[i][index] = line;
+            }
+            line->valid = true;
+            line->tag.write(tag);
+            line->offset.write(offset);
+            line->w_data.write(data);
+            line->write();
+        }
     }
 }
 
