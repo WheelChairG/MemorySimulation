@@ -89,6 +89,7 @@ int sc_main(int argc, char *argv[]){
     CacheConfig cache_config;
 
     parse_args(argc, argv, &cache_config);
+    // setDefault(&cache_config);
     validateCacheConfig(&cache_config);
 
     std::cout<<"cycles: "<<cache_config.cycles<<std::endl;
@@ -101,6 +102,8 @@ int sc_main(int argc, char *argv[]){
     std::cout<<"L2 cache latency: "<<cache_config.latencyCacheL2<<std::endl;
     std::cout<<"L3 cache latency: "<<cache_config.latencyCacheL3<<std::endl;
     std::cout<<"Mapping Strategy: "<<mstos(cache_config.mappingStrategy)<<std::endl;
+
+    
     
     return 0;
 }
