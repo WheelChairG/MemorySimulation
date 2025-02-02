@@ -9,12 +9,18 @@
 SC_MODULE(CacheLine){
 public:
     sc_in<bool> clk;
-    sc_signal<uint32_t> line_size;
-    sc_signal<uint32_t> tag;//which line
-    sc_signal<uint32_t> offset;//where in line
-    sc_signal<uint32_t> w_data;
-    sc_signal<uint32_t> r_data;
-    sc_signal<bool> ready;
+    // sc_signal<uint32_t> line_size;
+    // sc_signal<uint32_t> tag;//which line
+    // sc_signal<uint32_t> offset;//where in line
+    // sc_signal<uint32_t> w_data;
+    // sc_signal<uint32_t> r_data;
+    // sc_signal<bool> ready;
+    sc_in<uint32_t> line_size;
+    sc_in<uint32_t> tag;
+    sc_in<uint32_t> offset;
+    sc_in<uint32_t> w_data;
+    sc_out<uint32_t> r_data;
+    sc_out<bool> ready;
     sc_signal<uint32_t> latency;
 
     bool valid;
